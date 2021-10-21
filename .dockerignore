@@ -1,0 +1,14 @@
+
+/.git
+/backup/*
+/initdb/*
+
+/docker-compose.*
+/Dockerfile*
+/.dockerignore
+/.env
+/.gitignore
+
+/prestashop/*
+
+*.swp

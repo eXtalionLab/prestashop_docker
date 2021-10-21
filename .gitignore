@@ -1,0 +1,11 @@
+
+/backups/*
+/docker_volumes/*
+/initdb.d/*
+
+/docker-compose.override.yaml
+/docker-compose.override.yml
+/.env
+/*.log
+
+/prestashop/*
