@@ -9,8 +9,8 @@ if [ "$1" = "/tmp/docker_run.sh" ]; then
 
 	ln -sf "$PHP_INI_RECOMMENDED" "$PHP_INI_DIR/php.ini"
 
-	setfacl -R -m u:www-data:rX -m u:"$(whoami)":rwX .
-	setfacl -dR -m u:www-data:rX -m u:"$(whoami)":rwX .
+	setfacl -R -m u:www-data:rwX -m u:"$(whoami)":rwX .
+	setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX .
 fi
 
 exec "$@"
