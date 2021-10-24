@@ -58,6 +58,19 @@ RUN set -eux; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	rm -rf /var/lib/apt/lists/*
 
+ARG PS_PHP_VERSION=7.2
+ARG IONCUB_VERSION=lin_x86-64
+RUN set -eux; \
+    \
+    curl \
+        -o ioncube.tar.gz \
+        https://downloads.ioncube.com/loader_downloads/ioncube_loaders_${IONCUB_VERSION}.tar.gz \
+    && tar -xzf ioncube.tar.gz \
+    && mv ioncube/ioncube_loader_lin_${PS_PHP_VERSION}.so `php-config --extension-dir` \
+    && rm -Rf ioncube.tar.gz ioncube \
+    && docker-php-ext-enable ioncube_loader_lin_${PS_PHP_VERSION}
+
+
 WORKDIR /var/www/html
 
 
