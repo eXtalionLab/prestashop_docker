@@ -71,6 +71,9 @@ RUN set -eux; \
     && docker-php-ext-enable ioncube_loader_lin_${PS_PHP_VERSION}
 
 
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+
 WORKDIR /var/www/html
 
 
