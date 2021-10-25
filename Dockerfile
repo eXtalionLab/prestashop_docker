@@ -36,6 +36,9 @@ RUN set -eux; \
 		$PHPIZE_DEPS \
 	; \
 	\
+	docker-php-ext-install -j$(nproc) \
+		mysqli \
+	; \
 	pecl install \
 		apcu-${APCU_VERSION} \
 	; \
