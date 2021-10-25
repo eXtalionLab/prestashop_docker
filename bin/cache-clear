@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-bin/console cache:clear
+bin/console cache:clear "$@"
 
 docker-compose restart prestashop
