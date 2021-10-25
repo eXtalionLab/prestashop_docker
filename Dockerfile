@@ -4,7 +4,7 @@
 
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG PS_VERSION=1.7-7.2
+ARG PS_VERSION=1.7-7.3
 
 
 # "prestashop" stage
@@ -61,7 +61,7 @@ RUN set -eux; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	rm -rf /var/lib/apt/lists/*
 
-ARG PS_PHP_VERSION=7.2
+ARG PS_PHP_VERSION=7.3
 ARG IONCUB_VERSION=lin_x86-64
 RUN set -eux; \
 	\
