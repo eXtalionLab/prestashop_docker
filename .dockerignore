@@ -10,5 +10,6 @@
 /.gitignore
 
 /prestashop/*
+/var/*
 
 *.swp
