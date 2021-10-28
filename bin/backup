@@ -28,6 +28,7 @@ mysqlMaxAllowedPacket="1G"
 ###> files/volumes to backup ###
 filesToBackup=( \
     "$envFile" \
+    "cronjobs/" \
     "prestashop/" \
 )
 filesToExclude=( \
