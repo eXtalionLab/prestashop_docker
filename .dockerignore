@@ -1,7 +1,9 @@
 
 /.git
-/backup/*
-/initdb/*
+/backups/*
+/docker_volumes/*
+/initdb.d/*
+/var/*
 
 /docker-compose.*
 /Dockerfile*
@@ -11,6 +13,5 @@
 
 /cronjobs/*
 /prestashop/*
-/var/*
 
 *.swp
