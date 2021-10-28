@@ -23,6 +23,8 @@ RUN set -eux; \
 	apt-get update; \
 	apt-get install -y --no-install-recommends \
 		acl \
+		busybox-static \
+		supervisor \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
@@ -80,12 +82,30 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 
+RUN set -eux; \
+	\
+	mkdir -p /var/spool/cron/crontabs; \
+	mkdir -p /var/log/supervisord; \
+	mkdir -p /var/run/supervisord
+
+###> cronjob ###
+RUN set -eux; \
+	\
+	{ \
+		echo ''; \
+		# echo '* * * * * /cronjobs/job.sh'; \
+	} > /var/spool/cron/crontabs/www-data
+###< cronjob ###
+
+COPY docker/prestashop/supervisord.conf /
+COPY docker/prestashop/cron.sh /cron.sh
 COPY docker/prestashop/entrypoint.sh /prestashop-entrypoint.sh
 
 RUN set -eux; \
 	\
-	chmod +x /prestashop-entrypoint.sh
+	chmod +x /prestashop-entrypoint.sh; \
+	chmod +x /cron.sh
 
 
 ENTRYPOINT ["/prestashop-entrypoint.sh"]
-CMD ["/tmp/docker_run.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]

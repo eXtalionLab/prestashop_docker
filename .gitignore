@@ -8,5 +8,6 @@
 /.env
 /*.log
 
+/cronjobs/*
 /prestashop/*
 /var/*

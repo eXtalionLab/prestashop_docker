@@ -6,6 +6,7 @@ services:
         restart: always
         volumes:
             - php_socket:/var/run/php
+            - ./cronjobs:/cronjobs
             - ./prestashop:/var/www/html
         depends_on:
             - db
