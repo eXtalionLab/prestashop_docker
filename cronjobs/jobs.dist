@@ -1,0 +1,4 @@
+# Copy or rename this file to "jobs"
+# and add your jobs bellow
+
+* * * * * /cronjobs/example.sh

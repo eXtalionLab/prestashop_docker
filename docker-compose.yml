@@ -13,6 +13,7 @@ services:
         environment:
             - ADMIN_MAIL=${ADMIN_MAIL}
             - ADMIN_PASSWD=${ADMIN_PASSWD}
+            - CRONITOR_KEY=${CRONITOR_KEY}
             - DB_NAME=${MYSQL_DATABASE:-prestashop}
             - DB_PASSWD=${MYSQL_PASSWORD:?MYSQL_PASSWORD is not set or empty}
             - DB_PORT=3306

@@ -11,6 +11,16 @@ if [ "$1" = "/usr/bin/supervisord" ]; then
 
 	setfacl -R -m u:www-data:rwX -m u:"$(whoami)":rwX .
 	setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX .
+
+	cronjobsFile="/cronjobs/jobs"
+
+	if [ -f "$cronjobsFile" ]; then
+		echo "Install cron jobs"
+		cp "$cronjobsFile" "/var/spool/cron/crontabs/www-data"
+		chmod +x /cronjobs/*.sh
+	else
+		echo "File ${cronjobsFile} not found, skip."
+	fi
 fi
 
 exec "$@"

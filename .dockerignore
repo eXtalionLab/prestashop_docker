@@ -12,6 +12,9 @@
 /.gitignore
 
 /cronjobs/*
+!/cronjobs/example.sh
+!/cronjobs/helper
+!/cronjobs/jobs.dist
 /prestashop/*
 
 *.swp

@@ -88,15 +88,6 @@ RUN set -eux; \
 	mkdir -p /var/log/supervisord; \
 	mkdir -p /var/run/supervisord
 
-###> cronjob ###
-RUN set -eux; \
-	\
-	{ \
-		echo ''; \
-		# echo '* * * * * /cronjobs/job.sh'; \
-	} > /var/spool/cron/crontabs/www-data
-###< cronjob ###
-
 COPY docker/prestashop/supervisord.conf /
 COPY docker/prestashop/cron.sh /cron.sh
 COPY docker/prestashop/entrypoint.sh /prestashop-entrypoint.sh

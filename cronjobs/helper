@@ -1,0 +1,94 @@
+dont_run_on_localhost() {
+    local domain
+    domain=$(get_domain)
+
+    if [[ "$domain" == "nginx" ]]; then
+        echo "Skip run on localhost"
+
+        exit 0
+    fi
+}
+
+get_admin_folder() {
+    if [[ "$PS_FOLDER_ADMIN" == "" ]]; then
+        echo "admin"
+    fi
+
+    echo "$PS_FOLDER_ADMIN"
+}
+
+get_domain() {
+    if [[ "$PS_DOMAIN" == "" ]]; then
+        echo "Unknown domain name. Set PS_DOMAIN env"
+
+        exit 1
+    fi
+
+    domain="${PS_DOMAIN}"
+
+    # In docker "localhost" server for prestashop service is nginx service
+    if [[ "${domain}" == "localhost" ]]; then
+        domain='nginx'
+    fi
+
+    echo "$domain"
+}
+
+get_schema() {
+    schema='https'
+
+    if [[ $PS_ENABLE_SSL -eq 0 ]]; then
+        schema='http'
+    fi
+
+    echo "$schema"
+}
+
+get_script_name() {
+    local script_name
+    script_name="$(basename "$1" ".sh")"
+
+    echo "$script_name"
+}
+
+run_cronitor() {
+    call_cronitor "$1" "run"
+}
+
+complete_cronitor() {
+    call_cronitor "$1" "complete"
+}
+
+fail_cronitor() {
+    call_cronitor "$1" "fail"
+}
+
+call_cronitor() {
+    if [[ "$CRONITOR_KEY" == "" ]]; then
+        echo "Cronitor skip. CRONITOR_KEY not set"
+
+        return
+    fi
+
+    local monitorKey="$1"
+
+    if [[ "$monitorKey" == "" ]]; then
+        echo "\$monitorKey is required"
+
+        return
+    fi
+
+    local state="$2"
+
+    if [[ "$state" != "run"
+        && "$state" != "complete"
+        && "$state" != "fail"
+        && "$state" != "ok"
+    ]]; then
+        echo "Allowed values for \$state are: run, complete, fail, ok"
+
+        return
+    fi
+
+    curl "https://cronitor.link/p/${CRONITOR_KEY}/${monitorKey}?state=${state}"
+}
