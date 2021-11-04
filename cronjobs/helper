@@ -90,5 +90,6 @@ call_cronitor() {
         return
     fi
 
-    curl "https://cronitor.link/p/${CRONITOR_KEY}/${monitorKey}?state=${state}"
+    curl -Ls \
+        "https://cronitor.link/p/${CRONITOR_KEY}/${monitorKey}?state=${state}"
 }
