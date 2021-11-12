@@ -46,6 +46,7 @@ services:
         depends_on:
             - prestashop
         environment:
+            - PS_DOMAIN=${PS_DOMAIN}
             - PS_FOLDER_ADMIN=${PS_FOLDER_ADMIN}
 
     db:
