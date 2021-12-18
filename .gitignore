@@ -6,6 +6,7 @@
 
 /docker-compose.override.yaml
 /docker-compose.override.yml
+/.docker-backup
 /.env
 /*.log
 
