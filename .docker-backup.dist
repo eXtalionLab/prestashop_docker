@@ -2,6 +2,8 @@
 
 ###> config ###
 backupDir="backups"
+# How much old bakcups do not remove
+backupFilesToKeep=1
 dockerDbServiceName="db"
 # Use local image to skip download
 dockerImgToBackupVolumes="alpine"
