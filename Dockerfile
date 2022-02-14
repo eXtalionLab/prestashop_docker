@@ -105,6 +105,17 @@ CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]
 # "prestashop" dev stage
 FROM prestashop as prestashop_dev
 
+
+RUN set -eux; \
+	\
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		rsync \
+		zip \
+	; \
+	rm -rf /var/lib/apt/lists/*
+
+
 ARG XDEBUG_VERSION=3.1.3
 RUN set -eux; \
 	savedAptMark="$(apt-mark showmanual)"; \
