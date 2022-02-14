@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  prestashop:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prestashop_dev
+    environment:
+      - PS_DEV_MODE=1
+      - XDEBUG_MODE=${XDEBUG_MODE:-develop}
+      - XDEBUG_CONFIG=
+        client_host=${XDEBUG_HOST}
+        client_port=${XDEBUG_PORT:-9000}
+        xdebug.start_with_request=yes
+      - XDEBUG_SESSION=${XDEBUG_IDEKEY:-xdebug}

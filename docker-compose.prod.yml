@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  prestashop:
+    image: ${PRESTASHOP_IMAGE}
+    environment:
+      - PS_DEV_MODE=0
+
+  nginx:
+    image: ${NGINX_IMAGE}

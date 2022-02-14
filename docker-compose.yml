@@ -1,66 +1,69 @@
 version: '3'
 
 services:
-    prestashop:
-        image: ${PRESTASHOP_IMAGE}
-        restart: always
-        volumes:
-            - php_socket:/var/run/php
-            - ./cronjobs:/cronjobs
-            - ./prestashop:/var/www/html
-        depends_on:
-            - db
-        environment:
-            - ADMIN_MAIL=${ADMIN_MAIL}
-            - ADMIN_PASSWD=${ADMIN_PASSWD}
-            - CRONITOR_KEY=${CRONITOR_KEY}
-            - DB_NAME=${MYSQL_DATABASE:-prestashop}
-            - DB_PASSWD=${MYSQL_PASSWORD:?MYSQL_PASSWORD is not set or empty}
-            - DB_PORT=3306
-            - DB_PREFIX=${DB_PREFIX}
-            - DB_SERVER=db
-            - DB_USER=${MYSQL_USER:-prestashop}
-            - PS_ALL_LANGUAGES=${PS_ALL_LANGUAGES}
-            - PS_COUNTRY=${PS_COUNTRY}
-            - PS_DEMO_MODE=${PS_DEMO_MODE}
-            - PS_DEV_MODE=${PS_DEV_MODE}
-            - PS_DOMAIN=${PS_DOMAIN}
-            - PS_ENABLE_SSL=${PS_ENABLE_SSL}
-            - PS_ERASE_DB=${PS_ERASE_DB}
-            - PS_FOLDER_ADMIN=${PS_FOLDER_ADMIN}
-            - PS_FOLDER_INSTALL=${PS_FOLDER_INSTALL}
-            - PS_HANDLE_DYNAMIC_DOMAIN=${PS_HANDLE_DYNAMIC_DOMAIN}
-            - PS_HOST_MODE=${PS_HOST_MODE}
-            - PS_INSTALL_AUTO=${PS_INSTALL_AUTO}
-            - PS_INSTALL_DB=${PS_INSTALL_DB}
-            - PS_LANGUAGE=${PS_LANGUAGE}
+  prestashop:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prestashop
+    restart: always
+    volumes:
+      - php_socket:/var/run/php
+      - ./cronjobs:/cronjobs
+      - ./prestashop:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - ADMIN_MAIL=${ADMIN_MAIL}
+      - ADMIN_PASSWD=${ADMIN_PASSWD}
+      - CRONITOR_KEY=${CRONITOR_KEY}
+      - DB_NAME=${MYSQL_DATABASE:-prestashop}
+      - DB_PASSWD=${MYSQL_PASSWORD:?MYSQL_PASSWORD is not set or empty}
+      - DB_PORT=3306
+      - DB_PREFIX=${DB_PREFIX}
+      - DB_SERVER=db
+      - DB_USER=${MYSQL_USER:-prestashop}
+      - PS_ALL_LANGUAGES=${PS_ALL_LANGUAGES}
+      - PS_COUNTRY=${PS_COUNTRY}
+      - PS_DEMO_MODE=${PS_DEMO_MODE}
+      - PS_DOMAIN=${PS_DOMAIN}
+      - PS_ENABLE_SSL=${PS_ENABLE_SSL}
+      - PS_ERASE_DB=${PS_ERASE_DB}
+      - PS_FOLDER_ADMIN=${PS_FOLDER_ADMIN}
+      - PS_FOLDER_INSTALL=${PS_FOLDER_INSTALL}
+      - PS_HANDLE_DYNAMIC_DOMAIN=${PS_HANDLE_DYNAMIC_DOMAIN}
+      - PS_HOST_MODE=${PS_HOST_MODE}
+      - PS_INSTALL_AUTO=${PS_INSTALL_AUTO}
+      - PS_LANGUAGE=${PS_LANGUAGE}
 
-    nginx:
-        image: ${NGINX_IMAGE}
-        restart: always
-        ports:
-            - "127.0.0.1:${PRESTASHOP_PORT:?PRESTASHOP_PORT is not set or empty}:80"
-        volumes:
-            - php_socket:/var/run/php
-            - ./prestashop:/var/www/html
-        depends_on:
-            - prestashop
-        environment:
-            - PS_DOMAIN=${PS_DOMAIN}
-            - PS_FOLDER_ADMIN=${PS_FOLDER_ADMIN}
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "127.0.0.1:${PRESTASHOP_PORT:?PRESTASHOP_PORT is not set or empty}:80"
+    volumes:
+      - php_socket:/var/run/php
+      - ./prestashop:/var/www/html
+    depends_on:
+      - prestashop
+    environment:
+      - PS_DOMAIN=${PS_DOMAIN}
+      - PS_FOLDER_ADMIN=${PS_FOLDER_ADMIN}
 
-    db:
-        image: mariadb:10.5
-        restart: always
-        volumes:
-            - db_data:/var/lib/mysql
-            - ./initdb.d:/docker-entrypoint-initdb.d
-        environment:
-            - MYSQL_DATABASE=${MYSQL_DATABASE:-prestashop}
-            - MYSQL_PASSWORD=${MYSQL_PASSWORD:?MYSQL_PASSWORD is not set or empty}
-            - MYSQL_RANDOM_ROOT_PASSWORD='1'
-            - MYSQL_USER=${MYSQL_USER:-prestashop}
+  db:
+    image: mariadb:10.5
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-prestashop}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:?MYSQL_PASSWORD is not set or empty}
+      - MYSQL_RANDOM_ROOT_PASSWORD='1'
+      - MYSQL_USER=${MYSQL_USER:-prestashop}
 
 volumes:
-    db_data:
-    php_socket:
+  db_data:
+  php_socket:

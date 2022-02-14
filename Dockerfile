@@ -100,3 +100,36 @@ RUN set -eux; \
 
 ENTRYPOINT ["/prestashop-entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]
+
+
+# "prestashop" dev stage
+FROM prestashop as prestashop_dev
+
+ARG XDEBUG_VERSION=3.1.3
+RUN set -eux; \
+	savedAptMark="$(apt-mark showmanual)"; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		$PHPIZE_DEPS \
+	; \
+	rm -rf /var/lib/apt/lists/*; \
+	\
+	pecl install \
+		xdebug-${XDEBUG_VERSION} \
+	; \
+	pecl clear-cache; \
+	docker-php-ext-enable \
+		xdebug \
+	; \
+	\
+	apt-mark auto '.*' > /dev/null; \
+	[ -z "$savedAptMark" ] || apt-mark manual $savedAptMark; \
+	find /usr/local -type f -executable -exec ldd '{}' ';' \
+		| awk '/=>/ { print $(NF-1) }' \
+		| sort -u \
+		| xargs -r dpkg-query --search \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -r apt-mark manual \
+	; \
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false;
