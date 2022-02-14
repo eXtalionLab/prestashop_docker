@@ -4,6 +4,7 @@
 /initdb.d/*
 /var/*
 
+/.docker-backup
 /.env
 /*.log
 

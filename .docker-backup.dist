@@ -1,0 +1,30 @@
+# See https://github.com/eXtalionLab/docker-backup
+
+###> config ###
+backupDir="backups"
+# How much old bakcups do not remove
+backupFilesToKeep=1
+dockerDbServiceName="db"
+# Use local image to skip download
+dockerImgToBackupVolumes="alpine"
+dockerVolumesDir="docker_volumes"
+# Allow types: custom, mysql, postgresql
+dbType="mysql"
+envFile=".env"
+###< config ###
+
+###> files/volumes to backup ###
+filesToBackup=( \
+    "$envFile" \
+    "cronjobs/" \
+    "prestashop/" \
+)
+filesToExclude=( \
+    "prestashop/adminxyz/autoupgrade/backup" \
+    "prestashop/adminxyz/autoupgrade/download" \
+    "prestashop/var/cache" \
+    "prestashop/var/logs" \
+)
+# Remember to prefix volumes with docker-compose project name
+volumesToBackup=()
+###< files/volumes to backup ###
