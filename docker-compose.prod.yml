@@ -5,6 +5,8 @@ services:
     image: ${PRESTASHOP_IMAGE}
     environment:
       - PS_DEV_MODE=0
+      - SYMFONY_DEBUG=0
+      - SYMFONY_ENV=prod
 
   nginx:
     image: ${NGINX_IMAGE}

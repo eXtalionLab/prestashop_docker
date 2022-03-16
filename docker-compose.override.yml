@@ -8,6 +8,8 @@ services:
       target: prestashop_dev
     environment:
       - PS_DEV_MODE=1
+      - SYMFONY_DEBUG=1
+      - SYMFONY_ENV=dev
       - XDEBUG_MODE=${XDEBUG_MODE:-develop}
       - XDEBUG_CONFIG=
         client_host=${XDEBUG_HOST}
