@@ -1,4 +1,6 @@
 # Copy or rename this file to "jobs"
 # and add your jobs bellow
+#
+# minute hour day(month) month day(week)
 
 * * * * * /cronjobs/example.sh
