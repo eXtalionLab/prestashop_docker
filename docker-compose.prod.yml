@@ -10,3 +10,6 @@ services:
 
   nginx:
     image: ${NGINX_IMAGE}
+
+  db:
+    image: ${DB_IMAGE}

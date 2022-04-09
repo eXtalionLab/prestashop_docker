@@ -53,7 +53,9 @@ services:
       - PS_FOLDER_ADMIN=${PS_FOLDER_ADMIN}
 
   db:
-    image: mariadb:10.5
+    build:
+      context: ./docker/db
+      dockerfile: Dockerfile
     restart: always
     volumes:
       - db_data:/var/lib/mysql
