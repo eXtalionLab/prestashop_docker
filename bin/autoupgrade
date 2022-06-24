@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+source ".env.dist"
+
+if [[ -f ".env" ]]; then
+    source ".env"
+fi
+
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
+    echo "Run: ${0} --dir=${PS_FOLDER_ADMIN} [--channel=] [--action=]"
+    echo ""
+    echo "Options:"
+    echo "    --dir     Tells where the admin directory is"
+    echo "    --channel Selects what upgrade to run (minor, major etc.)"
+    echo "    --action  Advanced users only. Sets the step you want to start from (Default: UpgradeNow, all values: AllUpgradeTasks BackupFiles Download RemoveSamples UpgradeComplete UpgradeFiles UpgradeNow BackupDb CleanDatabase Unzip UpgradeDb UpgradeModules)."
+
+    exit 0
+fi
+
+docker-compose exec prestashop php modules/autoupgrade/cli-upgrade.php "$@"

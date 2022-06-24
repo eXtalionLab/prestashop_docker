@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+source ".env.dist"
+
+if [[ -f ".env" ]]; then
+    source ".env"
+fi
+
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
+    echo "Run: ${0} --dir=${PS_FOLDER_ADMIN} --backup="
+    echo ""
+    echo "Options:"
+    echo "    --dir    Tells where the admin directory is"
+    echo "    --backup Select the backup to restore (this can be found in your folder ${PS_FOLDER_ADMIN}/autoupgrade/backup/)"
+
+    exit 0
+fi
+
+docker-compose exec prestashop php modules/autoupgrade/cli-rollback.php "$@"
