@@ -82,6 +82,10 @@ get_module_dir() {
     echo "/var/www/html/modules/${script_name%%-*}"
 }
 
+bin_console() {
+    php /var/www/html/bin/console "$@"
+}
+
 run_cronitor() {
     call_cronitor "$1" "run"
 }

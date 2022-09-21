@@ -10,6 +10,6 @@
 
 /cronjobs/*
 !/cronjobs/example.sh
-!/cronjobs/helper
+!/cronjobs/helper.sh
 !/cronjobs/jobs.dist
 /prestashop/*
