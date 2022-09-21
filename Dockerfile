@@ -24,6 +24,7 @@ RUN set -eux; \
 	apt-get install -y --no-install-recommends \
 		acl \
 		busybox-static \
+		git \
 		supervisor \
 	; \
 	rm -rf /var/lib/apt/lists/*
@@ -47,6 +48,7 @@ RUN set -eux; \
 	pecl clear-cache; \
 	docker-php-ext-enable \
 		apcu \
+		opcache \
 	; \
 	\
 	# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
@@ -62,6 +64,11 @@ RUN set -eux; \
 	\
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	rm -rf /var/lib/apt/lists/*
+
+
+###> custom ###
+###< custom ###
+
 
 ARG PS_PHP_VERSION=7.4
 ARG IONCUB_VERSION=lin_x86-64
