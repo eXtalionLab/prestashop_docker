@@ -2,7 +2,7 @@
 
 root_path=$(dirname "$0")
 
-# shellcheck source=helper
+# shellcheck source=helper.sh
 source "${root_path}/helper.sh"
 
 script_name=$(get_script_name "$0")
