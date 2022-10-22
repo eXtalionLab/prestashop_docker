@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker-compose exec prestashop /tmp/init-scripts/install-cronjobs.sh

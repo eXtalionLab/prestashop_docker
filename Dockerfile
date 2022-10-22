@@ -97,15 +97,12 @@ RUN set -eux; \
 
 COPY docker/prestashop/supervisord.conf /
 COPY docker/prestashop/cron.sh /cron.sh
-COPY docker/prestashop/entrypoint.sh /prestashop-entrypoint.sh
 
 RUN set -eux; \
 	\
-	chmod +x /prestashop-entrypoint.sh; \
 	chmod +x /cron.sh
 
 
-ENTRYPOINT ["/prestashop-entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]
 
 

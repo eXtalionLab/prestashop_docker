@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+docker-compose exec prestashop /tmp/init-scripts/zzz-setup-files-permission.sh
+
