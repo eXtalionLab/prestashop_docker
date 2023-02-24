@@ -1,6 +1,11 @@
 # Copy or rename this file to "jobs"
 # and add your jobs bellow
 #
+# See "man 5 crontab" for details.
+#CRON_TZ=
+#RANDOM_DELAY=3
+#
 # minute hour day(month) month day(week)
+#
 
 * * * * * /cronjobs/example.sh
