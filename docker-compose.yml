@@ -36,6 +36,7 @@ services:
       - PS_HOST_MODE=${PS_HOST_MODE}
       - PS_INSTALL_AUTO=${PS_INSTALL_AUTO}
       - PS_LANGUAGE=${PS_LANGUAGE}
+      - SENTRY_DSN=${SENTRY_DSN}
 
   nginx:
     build:

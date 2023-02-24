@@ -128,3 +128,72 @@ call_cronitor() {
     curl -Ls \
         "https://cronitor.link/p/${CRONITOR_KEY}/${monitorKey}?state=${state}"
 }
+
+run_sentry() {
+    call_sentry "$1" "in_progress"
+}
+
+complete_sentry() {
+    call_sentry "$1" "ok" "$2" "$3" >> /dev/null
+}
+
+fail_sentry() {
+    call_sentry "$1" "error" "$2" "$3"
+}
+
+call_sentry() {
+    if [[ "$SENTRY_DSN" == "" ]]; then
+        echo "Sentry skip. SENTRY_DSN not set"
+
+        return
+    fi
+
+    local monitorId="$1"
+
+    if [[ "$monitorId" == "" ]]; then
+        echo "\$monitorId is required"
+
+        return
+    fi
+
+    local status="$2"
+
+    if [[ "$status" != "in_progress"
+        && "$status" != "error"
+        && "$status" != "ok"
+    ]]; then
+        echo "Allowed values for \$status are: in_progress, ok, error"
+
+        return
+    fi
+
+    local method='POST'
+    local checkInId="$3"
+
+    if [[ "$status" != "in_progress" ]]; then
+        if [[ "$checkInId" == '' ]]; then
+            echo "checked_in_id is required"
+
+            return
+        fi
+
+        method='PUT'
+        checkInId="${checkInId}/"
+    fi
+
+    local data="{\"status\": \"$status\"}"
+    local duration="$4"
+
+    if [[ "$duration" != "" ]]; then
+        data="{\"status\": \"$status\", \"duration\":$duration}"
+    fi
+
+    response="$(curl -Ls \
+        -X "$method" \
+        "https://sentry.io/api/0/monitors/$monitorId/checkins/$checkInId" \
+        --header "Authorization: DSN $SENTRY_DSN" \
+        --header 'Content-Type: application/json' \
+        --data-raw "$data")"
+
+    echo "$(echo "$response" | awk -F'"' '{print $4}')"
+}

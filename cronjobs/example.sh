@@ -11,11 +11,16 @@ log_file="$(get_log_file "${root_path}" "${script_name}")"
 # Uncomment if you don't want to run job on localhost
 #dont_run_on_localhost
 
-# Uncomment to monitor job with cronitor
-# See https://cronitor.io
+# Uncomment to monitor job with cronitor. See https://cronitor.io
 #run_cronitor "$script_name"
+# or
+# Uncomment to monitor job with sentry. See https://docs.sentry.io/product/crons/
+#sentry_monitor_id=''
+#check_in_id="$(run_sentry "$sentry_monitor_id")"
 
-# Your cron job
+start_at=$(date '+10#%s%N')
+###> Your cron job ###
+
 # use http
 domain=$(get_domain)
 admin_folder=$(get_admin_folder)
@@ -44,7 +49,13 @@ app_command="swiftmailer:spool:send"
 #bin_console ${app_command} \
 #    --no-ansi \
 #    >> "${log_file}" 2>&1
-# END Your cron job
 
-# Uncomment to monitor job with cronitor
+###< Your cron job ###
+end_at=$(date '+10#%s%N')
+duration=$(( ($end_at - $start_at) / 1000000 ))
+
+# Uncomment to monitor job with cronitor. See https://cronitor.io
 #complete_cronitor "$script_name"
+# or
+# Uncomment to monitor job with sentry. See https://docs.sentry.io/product/crons/
+#complete_sentry "$sentry_monitor_id" "$check_in_id" "$duration"
