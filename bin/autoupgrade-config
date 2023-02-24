@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+source ".env.dist"
+
+if [[ -f ".env" ]]; then
+    source ".env"
+fi
+
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
+    echo "Run: ${0} --dir=${PS_FOLDER_ADMIN} --from="
+    echo ""
+    echo "Options:"
+    echo "    --dir  Tells where the admin directory is"
+    echo "    --from Input configuration file"
+
+    exit 0
+fi
+
+docker-compose exec prestashop php modules/autoupgrade/cli-updateconfig.php "$@"
