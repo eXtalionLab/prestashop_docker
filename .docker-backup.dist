@@ -1,30 +1,34 @@
 # See https://github.com/eXtalionLab/docker-backup
 
 ###> config ###
-backupDir="backups"
-# How much old bakcups do not remove
-backupFilesToKeep=1
-dockerDbServiceName="db"
+backupDir='backups'
+dockerDbServiceName='db'
 # Use local image to skip download
-dockerImgToBackupVolumes="alpine"
-dockerVolumesDir="docker_volumes"
+dockerImgToBackupVolumes='alpine'
+dockerVolumesDir='docker_volumes'
 # Allow types: custom, mysql, postgresql
-dbType="mysql"
-envFile=".env"
+dbType='mysql'
+envFile='.env'
 ###< config ###
 
 ###> files/volumes to backup ###
 filesToBackup=( \
-    "$envFile" \
-    "cronjobs/" \
-    "prestashop/" \
+    "${envFile}" \
+    'cronjobs/' \
+    'prestashop/' \
 )
 filesToExclude=( \
-    "prestashop/adminxyz/autoupgrade/backup" \
-    "prestashop/adminxyz/autoupgrade/download" \
-    "prestashop/var/cache" \
-    "prestashop/var/logs" \
+    'cronjobs/log/*' \
+    'prestashop/adminxyz/autoupgrade/backup/*' \
+    'prestashop/adminxyz/autoupgrade/download/*' \
+    'prestashop/var/cache/*' \
+    'prestashop/var/logs/*' \
 )
 # Remember to prefix volumes with docker-compose project name
 volumesToBackup=()
 ###< files/volumes to backup ###
+
+###> borg ###
+export BORG_REPO='backups/app'
+export BORG_PASSPHRASE='Change_me!'
+###< borg ###
