@@ -16,3 +16,8 @@ services:
         client_port=${XDEBUG_PORT:-9000}
         xdebug.start_with_request=yes
       - XDEBUG_SESSION=${XDEBUG_IDEKEY:-xdebug}
+
+  node:
+    image: ${NODE_IMAGE}
+    volumes:
+      - ./prestashop:/var/www/html

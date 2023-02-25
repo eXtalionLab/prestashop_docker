@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+source ".env.dist"
+
+if [[ -e ".env" ]]; then
+    source ".env"
+fi
+
+allow_path_regex="^prestashop/(themes|modules)/[\w\-]+$"
+local_directory="${1%/}"
+
+if [[ "${local_directory}" == "" ]]; then
+    echo "Run: ${0} prestashop/(themes|modules)/(theme|module)_name [command]"
+    exit 1
+fi
+
+if [[ "${local_directory}" =~ $allow_path_regex ]]; then
+    echo "Allow path is \"${allow_path_regex}\""
+    exit 1
+fi
+
+local_dev_directory="${local_directory}/_dev"
+
+if [[ ! -e "${local_dev_directory}" ]]; then
+    echo "Module/theme \"${local_dev_directory}\" doesn't exists"
+    exit 1
+fi
+
+docker_dev_directory="/var/www/html${local_dev_directory#prestashop}"
+shift
+
+docker-compose run --rm  \
+    -p ${NODE_PORT:-3505}:3505 \
+    -w "${docker_dev_directory}" \
+    node yarn "$@"
