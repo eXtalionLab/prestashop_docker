@@ -10,12 +10,16 @@ It's a simply as possible `docker-compose` stack to run a
 - [Run](#run)
 	- [Fresh run](#fresh-run)
 	- [Run installed shop](#run-installed-shop)
+	- [Production](#production)
+	- [Docker envs](#docker-envs)
 - [Cron](#cron)
+	- [New cron job](#new-cron-job)
 	- [Monitor cron jobs](#monitor-cron-jobs)
 	- [Reinstall cron jobs](#reinstall-cron-jobs)
 - [Backup](#backup)
 - [Update](#update)
 	- [Change update config](#change-update-config)
+- [Debug](#debug)
 
 ## Requirements
 
@@ -39,19 +43,6 @@ When you want to run fresh instance of prestashop:
 5. Goto [PS_DOMAIN:PRESTASHOP_PORT](http://localhost/) domain and play with your
 new shop.
 
-**Note!** If you want to run **prod**uction environment uncomment line
-`#COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml`. It tells to
-`docker-compose` to use those files instead of default **docker-compose.yml**
-and  **docker-compose.override.yml** (they're good for **dev**elopment).
-
-**Note!** `PRESTASHOP_HOST` allow to change a host on which `nginx` services is
-listening. Default it's `127.0.0.1` so only you can connect from your local
-machine to the shop. Setup `0.0.0.0` to allow others from the same network to
-connect to your shop (for example to test shop on your mobile).
-
-Other environments are described
-[here](https://hub.docker.com/r/prestashop/prestashop).
-
 ### Run installed shop
 
 When you have a dump of your already installed Prestashop instance:
@@ -73,6 +64,27 @@ error. Please be patient and wait for database.
 7. Goto [http://localhost/](http://localhost/) domain and play with your new
 shop.
 
+### Production
+
+If you want to run **prod**uction environment
+
+1. Uncomment line `#COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml` in **.env** file.
+It tells to `docker-compose` to use those files instead of default
+**docker-compose.yml** and  **docker-compose.override.yml** (they're good for
+**dev**elopment).
+2. Rebuild images with `docker-compose build [--pull]`.
+3. Run new stack `docker-compose up [-d]`.
+
+### Docker envs
+
+`PRESTASHOP_HOST` allow to change a host on which `nginx` services is
+listening. Default it's `127.0.0.1` so only you can connect from your local
+machine to the shop. Setup `0.0.0.0` to allow others from the same network to
+connect to your shop (for example to test shop on your mobile).
+
+Other environments are described
+[here](https://hub.docker.com/r/prestashop/prestashop).
+
 ## Cron
 
 Create **cronjobs/jobs** file and add there a cron entries. You can copy example
@@ -88,6 +100,28 @@ Add custom scripts to **cronjobs/** directory. Remember to add **.sh** extension
 to files. Entrypoint will add `x` mode to all files **cronjobs/\*.sh**.
 
 **Note!** Name custom scripts like `modulename-youractionname.sh`.
+
+### New cron job
+
+You can use template file **cronjobs/example.sh** to create your own cron job.
+Put your logic between those lines:
+
+```bash
+###> Your cron job ###
+...
+###< Your cron job ###
+```
+
+In the most cases you will use `http` and it should looks like:
+
+```bash
+curl -Ls "${moduleCronUrl}" >> "${log_file}" 2>&1
+```
+
+where `$moduleCronUrl` you can find in specific module configuration. For
+example goto
+[gsitemap](http://localhost/adminxyz/index.php?controller=AdminModules&configure=gsitemap)
+module configuration page and check `Information` section.
 
 ### Monitor cron jobs
 
@@ -121,13 +155,13 @@ When you change an entries in **cronjobs/jobs** file remember to run
 
 To make a backup we're using a
 [docker-backup](https://github.com/eXtalionLab/docker-backup) tool which use
-[BorgBackup](https://www.borgbackup.org/).
+[BorgBackup](https://www.borgbackup.org/) under hood.
 
 Create a **.docker-backup** file (use **.docker-backup.dist** as starter file,
 `cp .docker-backup.dist .docker-backup`) and setup values. Refer to
 [documentation](https://github.com/eXtalionLab/docker-backup#docker-backup).
 
-**Note!** In `filesToExclude` change admin directory name to point your admin
+**Note!** In `filesToExclude` change admin directory name to point to your admin
 directory.
 
 ## Update
@@ -140,10 +174,13 @@ bin/autoupgrade --dir=adminxyz
 
 Use `bin/autoupgrade --help` to see more options.
 
+**Note!** Under hood we're using
+[autoupgrade](https://github.com/PrestaShop/autoupgrade) module.
+
 ### Change update config
 
-To do that just copy **update-config.json** to **prestashop/update-config.json**,
-change values up to you and run:
+To do that just copy **update-config.json** to
+**prestashop/update-config.json**, change values up to you and run:
 
 ```
 bin/autoupgrade-config --from=update-config.json
@@ -151,3 +188,14 @@ bin/autoupgrade-config --from=update-config.json
 
 Recommend to setup `"skip_backup": true`. You're already using other tool(s) to
 make a [backup](#backup).
+
+## Debug
+
+If you want to debug a shop with [xdebug](https://xdebug.org/):
+
+- be sure you're running **dev** environment,
+- setup `XDEBUG_HOST` to your local machine ip,
+- setup `XDEBUG_MODE` to `debug`,
+- reload docker with `docker-compose up -d`.
+
+Now you're ready to remote debugging.
