@@ -12,6 +12,7 @@ It's a simply as possible `docker-compose` stack to run a
 	- [Run installed shop](#run-installed-shop)
 	- [Production](#production)
 	- [Docker envs](#docker-envs)
+	- [Maintainance](#maintainance)
 - [Cron](#cron)
 	- [New cron job](#new-cron-job)
 	- [Monitor cron jobs](#monitor-cron-jobs)
@@ -84,6 +85,17 @@ connect to your shop (for example to test shop on your mobile).
 
 Other environments are described
 [here](https://hub.docker.com/r/prestashop/prestashop).
+
+### Maintainance
+
+From time to time is good to clean database from old records in specific tables.
+To do that there's a command `bin/mysql-clear`. Run:
+
+```bash
+bin/mysql-clear [--db-prefix DB_PREFIX] [--days DAYS] [--dry-run] [-h] [--clean-*]
+```
+
+Before delete any data from database is good to make a [backup](#backup).
 
 ## Cron
 

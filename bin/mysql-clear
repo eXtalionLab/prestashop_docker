@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+
+dbPrefix='ps_';
+days=100;
+dryRun=0
+queryAll=0;
+queryCart=0;
+queryConnections=0;
+queryGuest=0;
+queryLog=0;
+queryMail=0;
+querySpecificPrice=0;
+queries=();
+
+help() {
+    echo "Run: ${0} [options...]"
+    echo ""
+    echo "where options are:"
+    echo "    --clean-all            Clean all tables. Override other --clean-* options"
+    echo "    --clean-cart           Clean old abandoned carts (tables: cart, cart_product)"
+    echo "    --clean-connections    Clean old connections stats (tables: connections, connections_page, connections_source)"
+    echo "    --clean-guest          Clean guests with no orders (tables: guest)"
+    echo "    --clean-log            Clean old logs (tables: log)"
+    echo "    --clean-mail           Clean old email logs (tables: mail)"
+    echo "    --clean-specific-price Clean expired specific prices from products (tables: specific_price)"
+    echo "    --days DAYS            Clean records older then DAYS days (default: 100)"
+    echo "    --db-prefix DB_PREFIX  Database tables prefix (default: ps_)"
+    echo "    --dry-run              Just show which queries are going to run"
+    echo "    -h|--help              Show this help"
+}
+
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+    --clean-all )
+        queryAll=1;
+        ;;
+    --clean-cart )
+        queryCart=1;
+        ;;
+    --clean-connections )
+        queryConnections=1;
+        ;;
+    --clean-guest )
+        queryGuest=1;
+        ;;
+    --clean-log )
+        queryLog=1;
+        ;;
+    --clean-mail )
+        queryMail=1;
+        ;;
+    --clean-specific-price )
+        querySpecificPrice=1;
+        ;;
+    --days )
+        shift;
+        days="${1}";
+        ;;
+    --db-prefix )
+        shift;
+        dbPrefix="${1}";
+        ;;
+    --dry-run )
+        dryRun=1;
+        ;;
+    -h | --help )
+        help;
+        exit;
+        ;;
+esac; shift; done
+
+if [[ "$1" == '--' ]]; then
+    shift;
+fi
+
+emptyDatetime='0000-00-00 00:00:00.000';
+datetimeLimit="NOW() - INTERVAL ${days} DAY";
+
+if [[ ${queryAll} -eq 1 || ${queryCart} -eq 1 ]]; then
+    queries+=("DELETE cp FROM ${dbPrefix}cart c INNER JOIN ${dbPrefix}cart_product cp ON c.id_cart = cp.id_cart LEFT JOIN ${dbPrefix}orders o ON c.id_cart = o.id_cart WHERE o.id_cart IS NULL AND c.date_add < ${datetimeLimit}")
+    queries+=("DELETE c FROM ${dbPrefix}cart c LEFT JOIN ${dbPrefix}orders o ON c.id_cart = o.id_cart WHERE o.id_cart IS NULL AND c.date_add < ${datetimeLimit}")
+fi
+
+if [[ ${queryAll} -eq 1 || ${queryConnections} -eq 1 ]]; then
+    queries+=("DELETE cs FROM ${dbPrefix}connections c INNER JOIN ${dbPrefix}connections_source cs ON c.id_connections = cs.id_connections WHERE c.date_add < ${datetimeLimit}")
+    queries+=("DELETE c FROM ${dbPrefix}connections c WHERE c.date_add < ${datetimeLimit}")
+    queries+=("DELETE cp FROM ${dbPrefix}connections_page cp WHERE cp.time_start < ${datetimeLimit}")
+fi
+
+if [[ ${queryAll} -eq 1 || ${queryGuest} -eq 1 ]]; then
+    queries+=("DELETE g FROM ${dbPrefix}guest g LEFT JOIN ${dbPrefix}cart c ON g.id_guest = c.id_guest WHERE c.id_cart IS NULL AND (g.id_customer IS NULL OR g.id_customer = 0)")
+fi
+
+if [[ ${queryAll} -eq 1 || ${queryLog} -eq 1 ]]; then
+    queries+=("DELETE l FROM ${dbPrefix}log l WHERE l.date_add < ${datetimeLimit}")
+fi
+
+if [[ ${queryAll} -eq 1 || ${queryMail} -eq 1 ]]; then
+    queries+=("DELETE m FROM ${dbPrefix}mail m WHERE m.date_add < ${datetimeLimit}")
+fi
+
+if [[ ${queryAll} -eq 1 || ${querySpecificPrice} -eq 1 ]]; then
+    queries+=("DELETE sp FROM ${dbPrefix}specific_price sp WHERE sp.to != '${emptyDatetime}' AND sp.to < ${datetimeLimit}")
+fi
+
+if [[ ${#queries[@]} -eq 0 ]]; then
+    help;
+    exit;
+fi
+
+for query in "${queries[@]}"; do
+    echo "${query}"
+
+    if [[ ${dryRun} -eq 0 ]]; then
+        bin/mysql -e "${query}"
+    fi
+done
