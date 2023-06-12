@@ -51,6 +51,7 @@ services:
     depends_on:
       - prestashop
     environment:
+      - CLIENT_MAX_BODY_SIZE=${CLIENT_MAX_BODY_SIZE:-22M}
       - PS_DOMAIN=${PS_DOMAIN}
       - PS_FOLDER_ADMIN=${PS_FOLDER_ADMIN}
 
