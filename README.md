@@ -12,6 +12,7 @@ It's a simply as possible `docker-compose` stack to run a
 	- [Run installed shop](#run-installed-shop)
 	- [Production](#production)
 	- [Docker envs](#docker-envs)
+	- [Redis](#redis)
 	- [Maintainance](#maintainance)
 - [Cron](#cron)
 	- [New cron job](#new-cron-job)
@@ -69,10 +70,10 @@ shop.
 
 If you want to run **prod**uction environment
 
-1. Uncomment line `#COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml` in **.env** file.
-It tells to `docker-compose` to use those files instead of default
-**docker-compose.yml** and  **docker-compose.override.yml** (they're good for
-**dev**elopment).
+1. Uncomment line `#COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml` in
+**.env** file. It tells to `docker-compose` to use those files instead of
+default **docker-compose.yml** and  **docker-compose.override.yml** (they're
+good for **dev**elopment).
 2. Rebuild images with `docker-compose build [--pull]`.
 3. Run new stack `docker-compose up [-d]`.
 
@@ -85,6 +86,19 @@ connect to your shop (for example to test shop on your mobile).
 
 Other environments are described
 [here](https://hub.docker.com/r/prestashop/prestashop).
+
+### Redis
+
+Setup redis as a session handler can increase some server performance. To do it
+edit your **.env** file. Add `:docker/redis/compose.yml` to `COMPOSE_FILE`
+environment.
+
+You can also change other environments:
+
+```bash
+REDIS_HOST_PASSWORD=!ChangeMe!
+REDIS_IMAGE=extalion/prestashop_redis
+```
 
 ### Maintainance
 

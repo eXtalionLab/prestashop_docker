@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  prestashop:
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_HOST_PASSWORD=${REDIS_HOST_PASSWORD:-!ChangeMe!}
+
+  redis:
+    build:
+      context: ./docker/redis
+      dockerfile: Dockerfile
+    image: ${REDIS_IMAGE:-extalion/prestashop_redis}
+    restart: always
+    environment:
+      - REDIS_HOST_PASSWORD=${REDIS_HOST_PASSWORD:-!ChangeMe!}

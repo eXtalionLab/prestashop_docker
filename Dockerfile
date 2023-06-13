@@ -25,11 +25,13 @@ RUN set -eux; \
 		acl \
 		busybox-static \
 		git \
+		netcat \
 		supervisor \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
 ARG APCU_VERSION=5.1.21
+ARG REDIS_VERSION=5.3.7
 RUN set -eux; \
 	\
 	savedAptMark="$(apt-mark showmanual)"; \
@@ -44,11 +46,13 @@ RUN set -eux; \
 	; \
 	pecl install \
 		apcu-${APCU_VERSION} \
+		redis-${REDIS_VERSION} \
 	; \
 	pecl clear-cache; \
 	docker-php-ext-enable \
 		apcu \
 		opcache \
+		redis \
 	; \
 	\
 	# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
