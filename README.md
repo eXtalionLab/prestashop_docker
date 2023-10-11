@@ -195,7 +195,7 @@ directory.
 To update `Prestashop` from cli just run:
 
 ```
-bin/autoupgrade --dir=adminxyz
+bin/autoupgrade --dir=adminxyz [--version=]
 ```
 
 Use `bin/autoupgrade --help` to see more options.

@@ -6,15 +6,118 @@ if [[ -f ".env" ]]; then
     source ".env"
 fi
 
-if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
-    echo "Run: ${0} --dir=${PS_FOLDER_ADMIN} [--channel=] [--action=]"
+help() {
+    echo "Run: ${0} --dir=${PS_FOLDER_ADMIN} [--channel=] [--action=] [--version=]"
     echo ""
     echo "Options:"
-    echo "    --dir     Tells where the admin directory is"
-    echo "    --channel Selects what upgrade to run (minor, major etc.)"
-    echo "    --action  Advanced users only. Sets the step you want to start from (Default: UpgradeNow, all values: AllUpgradeTasks BackupFiles Download RemoveSamples UpgradeComplete UpgradeFiles UpgradeNow BackupDb CleanDatabase Unzip UpgradeDb UpgradeModules)."
+    echo "      --action  Advanced users only. Sets the step you want to start from (Default: UpgradeNow, all values: AllUpgradeTasks BackupFiles Download RemoveSamples UpgradeComplete UpgradeFiles UpgradeNow BackupDb CleanDatabase Unzip UpgradeDb UpgradeModules)."
+    echo "      --channel Selects what upgrade to run (minor, major etc.)"
+    echo "      --dir     Tells where the admin directory is (${PS_FOLDER_ADMIN})"
+    echo "  -h, --help    Display this help"
+    echo "      --version Concret PrestaShop version. It will donwload it from github.com and dump config file for bin/autoupgrade-config command"
+
+    exit 0
+}
+
+action=""
+channel=""
+data=""
+dir=""
+version=""
+
+while [[ "$1" =~ ^- && ! "$1" == "--" ]]; do case $1 in
+  --action )
+    shift
+    action="${1}"
+    ;;
+  --action=* )
+    action="${1#--action=}"
+    ;;
+  --channel )
+    shift
+    channel="${1}"
+    ;;
+  --channel=* )
+    channel="${1#--channel=}"
+    ;;
+  --data )
+    shift
+    data="${1}"
+    ;;
+  --data=* )
+    data="${1#--data=}"
+    ;;
+  --dir )
+    shift
+    dir="${1}"
+    ;;
+  --dir=* )
+    dir="${1#--dir=}"
+    ;;
+  -h | --help )
+    help
+    ;;
+  --version )
+    shift
+    version="${1}"
+    ;;
+  --version=* )
+    version="${1#--version=}"
+    ;;
+esac; shift; done
+
+if [[ "${version}" != "" ]]; then
+    echo "Download PrestaShop version ${version}"
+
+    extensions=("zip" "xml");
+    url_prefix="https://github.com/PrestaShop/PrestaShop/releases/download"
+
+    for extension in "${extensions[@]}"; do
+        output="prestashop/${dir}/autoupgrade/download/prestashop_${version}.${extension}"
+
+        if [[ ! -f "${output}" ]]; then
+            curl \
+                -L "${url_prefix}/${version}/prestashop_${version}.${extension}" \
+                -o  "${output}" \
+            ;
+        fi
+    done
+
+    echo ""
+    echo "Create \"update-config.json\" file in prestashop directory with content:"
+    echo ""
+    echo "  {"
+    echo "    \"archive_num\": \"${version}\","
+    echo "    \"archive_prestashop\": \"prestashop_${version}.zip\","
+    echo "    \"archive_xml\": \"prestashop_${version}.xml\","
+    echo "    \"channel\": \"archive\","
+    echo "    \"skip_backup\": true,"
+    echo "    \"PS_AUTOUP_CHANGE_DEFAULT_THEME\": false,"
+    echo "    \"PS_AUTOUP_CUSTOM_MOD_DESACT\": false"
+    echo "  }"
+    echo ""
+    echo "End run: bin/autoupgrade-config --dir=${dir} --from=update-config.json"
+    echo ""
 
     exit 0
 fi
 
-docker-compose exec prestashop php modules/autoupgrade/cli-upgrade.php "$@"
+if [[ "${dir}" == "" ]]; then
+    help
+fi
+
+args="--dir=${dir}"
+
+if [[ "${action}" != "" ]]; then
+    args="${args} --action=${action}"
+fi
+
+if [[ "${channel}" != "" ]]; then
+    args="${args} --channel=${channel}"
+fi
+
+if [[ "${data}" != "" ]]; then
+    args="${args} --data=${data}"
+fi
+
+docker-compose exec prestashop php modules/autoupgrade/cli-upgrade.php $args
