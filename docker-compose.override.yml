@@ -12,10 +12,16 @@ services:
       - SYMFONY_ENV=dev
       - XDEBUG_MODE=${XDEBUG_MODE:-develop}
       - XDEBUG_CONFIG=
+        cli_color=1
         client_host=${XDEBUG_HOST}
-        client_port=${XDEBUG_PORT:-9000}
-        xdebug.start_with_request=yes
+        client_port=${XDEBUG_PORT:-9003}
+        log=/var/www/html/var/logs/xdebug.log
+        log_level=${XDEBUG_LOG_LEVEL:-7}
+        idekey=${XDEBUG_IDEKEY:-xdebug}
       - XDEBUG_SESSION=${XDEBUG_IDEKEY:-xdebug}
+    extra_hosts:
+      # Ensure that host.docker.internal is correctly defined on Linux
+      - host.docker.internal:host-gateway
 
   node:
     image: ${NODE_IMAGE}

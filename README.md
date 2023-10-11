@@ -220,8 +220,7 @@ make a [backup](#backup).
 If you want to debug a shop with [xdebug](https://xdebug.org/):
 
 - be sure you're running **dev** environment (and images),
-- setup `XDEBUG_HOST` to your local machine ip,
-- setup `XDEBUG_MODE` to `debug`,
+- add/setup `debug` to `XDEBUG_MODE`,
 - reload docker with `docker-compose up -d`.
 
 Now you're ready to remote debugging.
