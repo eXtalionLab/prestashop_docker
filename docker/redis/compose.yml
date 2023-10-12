@@ -9,7 +9,6 @@ services:
   redis:
     build:
       context: ./docker/redis
-      dockerfile: Dockerfile
     image: ${REDIS_IMAGE:-extalion/prestashop_redis}
     restart: always
     environment:

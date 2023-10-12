@@ -2,10 +2,6 @@ version: '3'
 
 services:
   prestashop:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: prestashop
     restart: always
     volumes:
       - php_socket:/var/run/php
@@ -41,7 +37,6 @@ services:
   nginx:
     build:
       context: ./docker/nginx
-      dockerfile: Dockerfile
     restart: always
     ports:
       - ${PRESTASHOP_HOST:-127.0.0.1}:${PRESTASHOP_PORT:-80}:80
@@ -58,7 +53,6 @@ services:
   db:
     build:
       context: ./docker/db
-      dockerfile: Dockerfile
     restart: always
     ports:
       - "127.0.0.1:${DB_PORT:-3306}:3306"

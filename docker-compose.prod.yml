@@ -2,11 +2,10 @@ version: '3'
 
 services:
   prestashop:
+    build:
+      context: .
+      target: prestashop_prod
     image: ${PRESTASHOP_IMAGE}
-    environment:
-      - PS_DEV_MODE=0
-      - SYMFONY_DEBUG=0
-      - SYMFONY_ENV=prod
 
   nginx:
     image: ${NGINX_IMAGE}
