@@ -2,8 +2,9 @@ version: '3'
 
 services:
   prestashop:
+    volumes:
+      - ./docker/redis/config.ini:/usr/local/etc/php/conf.d/redis.ini:ro
     environment:
-      - REDIS_HOST=redis
       - REDIS_HOST_PASSWORD=${REDIS_HOST_PASSWORD:-!ChangeMe!}
 
   redis:
