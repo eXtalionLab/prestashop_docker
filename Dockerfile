@@ -33,7 +33,7 @@ RUN apt-get update; \
 	&& rm -rf /var/lib/apt/lists/*
 
 # php extensions installer: https://github.com/mlocati/docker-php-extension-installer
-COPY --from=php_extension_installer_upstream --link /usr/bin/install-php-extensions /usr/local/bin/
+COPY --from=php_extension_installer_upstream /usr/bin/install-php-extensions /usr/local/bin/
 
 RUN set -eux; \
 	install-php-extensions \
@@ -43,14 +43,14 @@ RUN set -eux; \
 		redis \
 	;
 
-COPY --link docker/prestashop/conf.d/prestashop.ini $PHP_INI_DIR/conf.d/zzz-prestashop.ini
-COPY --link docker/prestashop/php-fpm.d/prestashop.conf $PHP_INI_DIR/../php-fpm.d/zzz-prestashop.conf
+COPY docker/prestashop/conf.d/prestashop.ini $PHP_INI_DIR/conf.d/zzz-prestashop.ini
+COPY docker/prestashop/php-fpm.d/prestashop.conf $PHP_INI_DIR/../php-fpm.d/zzz-prestashop.conf
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV PATH="${PATH}:/root/.composer/vendor/bin"
 
-COPY --from=composer_upstream --link /composer /usr/bin/composer
+COPY --from=composer_upstream /composer /usr/bin/composer
 
 ###> ioncube ###
 ARG PS_PHP_VERSION=7.4
@@ -73,8 +73,8 @@ RUN set -eux; \
 	mkdir -p /var/log/supervisord; \
 	mkdir -p /var/run/supervisord
 
-COPY --link docker/prestashop/supervisord.conf /
-COPY --link docker/prestashop/cron.sh /cron.sh
+COPY docker/prestashop/supervisord.conf /
+COPY docker/prestashop/cron.sh /cron.sh
 
 RUN chmod +x /cron.sh
 ###< cron ###
@@ -103,7 +103,7 @@ RUN set -eux; \
 		xdebug \
 	;
 
-COPY --link docker/prestashop/conf.d/prestashop.dev.ini $PHP_INI_DIR/conf.d/zzz-prestashop.dev.ini
+COPY docker/prestashop/conf.d/prestashop.dev.ini $PHP_INI_DIR/conf.d/zzz-prestashop.dev.ini
 
 # Prod prestashop image
 FROM prestashop_base AS prestashop_prod
@@ -112,4 +112,4 @@ ENV PS_DEV_MODE=0 SYMFONY_DEBUG=0 SYMFONY_ENV=prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-COPY --link docker/prestashop/conf.d/prestashop.prod.ini $PHP_INI_DIR/conf.d/zzz-prestashop.prod.ini
+COPY docker/prestashop/conf.d/prestashop.prod.ini $PHP_INI_DIR/conf.d/zzz-prestashop.prod.ini
