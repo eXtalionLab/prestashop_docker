@@ -43,8 +43,8 @@ RUN set -eux; \
 		redis \
 	;
 
-COPY --link docker/prestashop/conf.d/prestashop.ini $PHP_INI_DIR/conf.d/prestashop.ini
-COPY --link docker/prestashop/php-fpm.d/prestashop.conf $PHP_INI_DIR/../php-fpm.d/prestashop.conf
+COPY --link docker/prestashop/conf.d/prestashop.ini $PHP_INI_DIR/conf.d/zzz-prestashop.ini
+COPY --link docker/prestashop/php-fpm.d/prestashop.conf $PHP_INI_DIR/../php-fpm.d/zzz-prestashop.conf
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER=1
@@ -103,7 +103,7 @@ RUN set -eux; \
 		xdebug \
 	;
 
-COPY --link docker/prestashop/conf.d/prestashop.dev.ini $PHP_INI_DIR/conf.d/
+COPY --link docker/prestashop/conf.d/prestashop.dev.ini $PHP_INI_DIR/conf.d/zzz-prestashop.dev.ini
 
 # Prod prestashop image
 FROM prestashop_base AS prestashop_prod
@@ -112,4 +112,4 @@ ENV PS_DEV_MODE=0 SYMFONY_DEBUG=0 SYMFONY_ENV=prod
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-COPY --link docker/conf.d/prestashop.prod.ini $PHP_INI_DIR/conf.d/
+COPY --link docker/prestashop/conf.d/prestashop.prod.ini $PHP_INI_DIR/conf.d/zzz-prestashop.prod.ini
