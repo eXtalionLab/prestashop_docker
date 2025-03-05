@@ -1,0 +1,11 @@
+# Production environment override
+services:
+  prestashop:
+    build:
+      context: .
+      target: prestashop_prod
+
+  daemon:
+    build:
+      context: .
+      target: prestashop_prod

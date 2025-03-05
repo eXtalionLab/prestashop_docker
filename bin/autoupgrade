@@ -73,18 +73,28 @@ if [[ "${version}" != "" ]]; then
     url_prefix="https://github.com/PrestaShop/PrestaShop/releases/download"
 
     for extension in "${extensions[@]}"; do
-        output="prestashop/${dir}/autoupgrade/download/prestashop_${version}.${extension}"
+        file="prestashop_${version}.${extension}"
+        output="prestashop/${dir}/autoupgrade/download/${file}"
 
         if [[ ! -f "${output}" ]]; then
+            echo "Download file \"${file}\" ..."
+
             curl \
-                -L "${url_prefix}/${version}/prestashop_${version}.${extension}" \
+                -fs \
+                -L "${url_prefix}/${version}/${file}" \
                 -o  "${output}" \
             ;
+        fi
+
+        if [[ ! -f "${output}" ]]; then
+            echo "File \"${file}\" not found"
+
+            exit 1
         fi
     done
 
     echo ""
-    echo "Create \"update-config.json\" file in prestashop directory with content:"
+    echo "Create \"update-config.json\" file in prestashop/ directory with content:"
     echo ""
     echo "  {"
     echo "    \"archive_num\": \"${version}\","
@@ -96,7 +106,7 @@ if [[ "${version}" != "" ]]; then
     echo "    \"PS_AUTOUP_CUSTOM_MOD_DESACT\": false"
     echo "  }"
     echo ""
-    echo "End run: bin/autoupgrade-config --dir=${dir} --from=update-config.json"
+    echo "And run: bin/autoupgrade-config --dir=${dir} --from=update-config.json"
     echo ""
 
     exit 0
@@ -120,4 +130,4 @@ if [[ "${data}" != "" ]]; then
     args="${args} --data=${data}"
 fi
 
-docker-compose exec prestashop php modules/autoupgrade/cli-upgrade.php $args
+docker compose exec prestashop php modules/autoupgrade/cli-upgrade.php $args

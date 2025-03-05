@@ -2,4 +2,4 @@
 
 bin/console cache:clear "$@"
 
-docker-compose restart prestashop
+docker compose restart prestashop

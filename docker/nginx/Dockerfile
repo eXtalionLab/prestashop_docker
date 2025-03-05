@@ -4,18 +4,14 @@
 
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG NGINX_VERSION=1.20
+ARG NGINX_VERSION=1.27
 
 
 # "nginx" stage
 FROM nginx:${NGINX_VERSION}-alpine
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf.template
-COPY entrypoint.sh /nginx-entrypoint.sh
+COPY --link --chmod=755 entrypoint.sh /usr/local/bin/entrypoint
+COPY --link nginx.conf /etc/nginx/conf.d/default.conf.template
 
-RUN set -eux; \
-    \
-    chmod +x /nginx-entrypoint.sh
-
-ENTRYPOINT ["/nginx-entrypoint.sh"]
+ENTRYPOINT ["entrypoint"]
 CMD ["nginx", "-g", "daemon off;"]

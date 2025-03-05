@@ -16,4 +16,4 @@ if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
     exit 0
 fi
 
-docker-compose exec prestashop php modules/autoupgrade/cli-updateconfig.php "$@"
+docker compose exec prestashop php modules/autoupgrade/cli-updateconfig.php "$@"

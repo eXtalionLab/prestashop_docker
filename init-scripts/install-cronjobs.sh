@@ -5,9 +5,9 @@ echo "Install cronjobs..."
 cronjobs_file="/cronjobs/jobs"
 
 if [[ ! -f "$cronjobs_file" ]]; then
-    echo "File \"${cronjobs_file}\" not found, skip."
+	echo "File \"${cronjobs_file}\" not found, skip."
 
-    exit 0;
+	exit 0;
 fi
 
 cp "$cronjobs_file" "/var/spool/cron/crontabs/www-data"

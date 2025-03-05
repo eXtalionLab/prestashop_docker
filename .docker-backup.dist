@@ -6,7 +6,7 @@ dockerDbServiceName='db'
 # Use local image to skip download
 dockerImgToBackupVolumes='alpine'
 dockerVolumesDir='docker_volumes'
-# Allow types: custom, mysql, postgresql
+# Allow types: custom, mariadb, mongo, mysql, postgresql
 dbType='mysql'
 envFile='.env'
 ###< config ###

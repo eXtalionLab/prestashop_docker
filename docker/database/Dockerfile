@@ -4,10 +4,10 @@
 
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG MARIADB_VERSION=10.5
+ARG MARIADB_VERSION=11.4
 
 
 # "mariadb" stage
 FROM mariadb:${MARIADB_VERSION}
 
-COPY prestashop.cnf /etc/mysql/conf.d/zzz-prestashop.cnf
+COPY --link prestashop.cnf /etc/mysql/conf.d/zzz-prestashop.cnf

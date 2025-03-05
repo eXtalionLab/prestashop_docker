@@ -29,7 +29,7 @@ fi
 docker_dev_directory="/var/www/html${local_dev_directory#prestashop}"
 shift
 
-docker-compose run --rm  \
+docker compose run --rm  \
     -p ${NODE_PORT:-3505}:3505 \
     -w "${docker_dev_directory}" \
     node yarn "$@"

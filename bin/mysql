@@ -3,8 +3,8 @@
 source .env
 
 if [[ -t 0 ]]; then
-    docker-compose exec db mysql -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" "$@"
+    docker compose exec database mariadb -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" "$@"
 elif [[ -t 1 ]]; then
     # We read input stream so we need -T (tty) option
-    docker-compose exec -T db mysql -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -t
+    docker compose exec -T database mariadb -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -t
 fi

@@ -1,0 +1,113 @@
+services:
+  prestashop:
+    image: ${IMAGES_PREFIX:-}app-prestashop
+    depends_on:
+      - database
+      - redis
+    restart: unless-stopped
+    environment:
+      ADMIN_MAIL: ${ADMIN_MAIL:-admin@email.com}
+      ADMIN_PASSWD: ${ADMIN_PASSWD:-admin123}
+      CRONITOR_KEY: ${CRONITOR_KEY:-}
+      DB_NAME: ${MYSQL_DATABASE:-prestashop}
+      DB_PASSWD: ${MYSQL_PASSWORD:-!ChangeMe!}
+      DB_PORT: 3306
+      DB_PREFIX: ${DB_PREFIX:-ps_}
+      DB_SERVER: database
+      DB_USER: ${MYSQL_USER:-prestashop}
+      PS_ALL_LANGUAGES: ${PS_ALL_LANGUAGES:-0}
+      PS_COUNTRY: ${PS_COUNTRY:-PL}
+      PS_DEMO_MODE: ${PS_DEMO_MODE:-0}
+      PS_DOMAIN: ${PS_DOMAIN:-localhost}
+      PS_ENABLE_SSL: ${PS_ENABLE_SSL:-0}
+      PS_ERASE_DB: ${PS_ERASE_DB:-0}
+      PS_FOLDER_ADMIN: ${PS_FOLDER_ADMIN:-adminxyz}
+      PS_FOLDER_INSTALL: ${PS_FOLDER_INSTALL:-install}
+      PS_HANDLE_DYNAMIC_DOMAIN: ${PS_HANDLE_DYNAMIC_DOMAIN:-0}
+      PS_HOST_MODE: ${PS_HOST_MODE:-0}
+      PS_INSTALL_AUTO: ${PS_INSTALL_AUTO:-1}
+      PS_LANGUAGE: ${PS_LANGUAGE:-en}
+      REDIS_HOST_PASSWORD: ${REDIS_HOST_PASSWORD:-!ChangeMe!}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    volumes:
+      - php_socket:/var/run/php
+      - ./init-scripts:/tmp/init-scripts:ro
+      - ./prestashop:/var/www/html
+
+  nginx:
+    image: ${IMAGES_PREFIX:-}app-nginx
+    build:
+      context: ./docker/nginx
+    depends_on:
+      - prestashop
+    restart: unless-stopped
+    environment:
+      CLIENT_MAX_BODY_SIZE: ${CLIENT_MAX_BODY_SIZE:-22M}
+      PS_DOMAIN: ${PS_DOMAIN:-localhost}
+      PS_FOLDER_ADMIN: ${PS_FOLDER_ADMIN:-adminxyz}
+    volumes:
+      - php_socket:/var/run/php
+      - ./prestashop:/var/www/html:ro
+    ports:
+      - target: 80
+        published: ${PRESTASHOP_PORT:-80}
+        protocol: tcp
+        host_ip: ${PRESTASHOP_HOST:-127.0.0.1}
+
+  database:
+    image: ${IMAGES_PREFIX:-}app-database
+    build:
+      context: ./docker/database
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-prestashop}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-!ChangeMe!}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-!ReallyChangeMe!}
+      MYSQL_USER: ${MYSQL_USER:-prestashop}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - target: 3306
+        published: ${MYSQL_PORT:-3306}
+        protocol: tcp
+        host_ip: 127.0.0.1
+
+  daemon:
+    image: ${IMAGES_PREFIX:-}app-prestashop
+    entrypoint: ["daemon-entrypoint"]
+    command: ["supervisord", "-c", "/etc/supervisor/conf.d/daemon.conf"]
+    healthcheck:
+      disable: true
+    depends_on:
+      - database
+      - redis
+    restart: unless-stopped
+    environment:
+      CRONITOR_KEY: ${CRONITOR_KEY:-}
+      DB_NAME: ${MYSQL_DATABASE:-prestashop}
+      DB_PASSWD: ${MYSQL_PASSWORD:-!ChangeMe!}
+      DB_PORT: 3306
+      DB_PREFIX: ${DB_PREFIX:-ps_}
+      DB_SERVER: database
+      DB_USER: ${MYSQL_USER:-prestashop}
+      REDIS_HOST_PASSWORD: ${REDIS_HOST_PASSWORD:-!ChangeMe!}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    volumes:
+      - php_socket:/var/run/php
+      - ./cronjobs:/cronjobs
+      - ./init-scripts:/tmp/init-scripts:ro
+      - ./prestashop:/var/www/html
+      - ./prestashop/var/daemon:/var/www/html/var
+
+  redis:
+    image: ${IMAGES_PREFIX:-}app-redis
+    build:
+      context: ./docker/redis
+    restart: unless-stopped
+    environment:
+      REDIS_HOST_PASSWORD: ${REDIS_HOST_PASSWORD:-!ChangeMe!}
+
+volumes:
+  db_data:
+  php_socket:

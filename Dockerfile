@@ -5,7 +5,7 @@
 
 # Versions
 # hadolint ignore=DL3007
-FROM prestashop/prestashop:1.7-fpm AS prestashop_upstream
+FROM prestashop/prestashop:8.2-fpm AS prestashop_upstream
 FROM composer/composer:2-bin AS composer_upstream
 FROM mlocati/php-extension-installer AS php_extension_installer_upstream
 
@@ -16,21 +16,23 @@ FROM mlocati/php-extension-installer AS php_extension_installer_upstream
 
 
 # Base prestashop image
-FROM prestashop_upstream as prestashop_base
+FROM prestashop_upstream AS prestashop_base
 
 WORKDIR /var/www/html
 
 # persistent / runtime deps
 # hadolint ignore=DL3008
-RUN apt-get update; \
-	apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install --no-install-recommends -y \
 		acl \
 		busybox-static \
 		git \
-		ncat \
+		libfcgi-bin \
 		supervisor \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
+
+# https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
+ENV COMPOSER_ALLOW_SUPERUSER=1
 
 # php extensions installer: https://github.com/mlocati/docker-php-extension-installer
 COPY --from=php_extension_installer_upstream /usr/bin/install-php-extensions /usr/local/bin/
@@ -43,17 +45,14 @@ RUN set -eux; \
 		redis \
 	;
 
-COPY docker/prestashop/conf.d/prestashop.ini $PHP_INI_DIR/conf.d/zzz-prestashop.ini
-COPY docker/prestashop/php-fpm.d/prestashop.conf $PHP_INI_DIR/../php-fpm.d/zzz-prestashop.conf
-
-# https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
-ENV COMPOSER_ALLOW_SUPERUSER=1
+COPY --link docker/prestashop/conf.d/prestashop.ini $PHP_INI_DIR/conf.d/zzz-prestashop.ini
+COPY --link docker/prestashop/php-fpm.d/prestashop.conf $PHP_INI_DIR/../php-fpm.d/zzz-prestashop.conf
 ENV PATH="${PATH}:/root/.composer/vendor/bin"
 
 COPY --from=composer_upstream /composer /usr/bin/composer
 
 ###> ioncube ###
-ARG PS_PHP_VERSION=7.4
+ARG PS_PHP_VERSION=8.1
 ARG IONCUB_VERSION=lin_x86-64
 RUN set -eux; \
 	\
@@ -69,30 +68,27 @@ RUN set -eux; \
 ###> cron ###
 RUN set -eux; \
 	\
-	mkdir -p /var/spool/cron/crontabs; \
-	mkdir -p /var/log/supervisord; \
-	mkdir -p /var/run/supervisord
+	mkdir -p /var/spool/cron/crontabs
 
-COPY docker/prestashop/supervisord.conf /
-COPY docker/prestashop/cron.sh /cron.sh
-
-RUN chmod +x /cron.sh
+COPY --link --chmod=755 docker/prestashop/cron.sh /cron.sh
+COPY --link --chmod=755 docker/prestashop/daemon-entrypoint.sh /usr/local/bin/daemon-entrypoint
+COPY --link docker/prestashop/daemon-supervisor.conf /etc/supervisor/conf.d/daemon.conf
 ###< cron ###
 
 ###> custom ###
 ###< custom ###
 
-CMD ["/usr/bin/supervisord", "-c", "/supervisord.conf"]
+HEALTHCHECK --start-period=60s CMD cgi-fcgi -bind -connect /var/run/php/php-fpm.sock || exit 1
 
 # Dev prestashop image
 FROM prestashop_base AS prestashop_dev
 
-ENV PS_DEV_MODE=1 SYMFONY_DEBUG=1 SYMFONY_ENV=dev XDEBUG_MODE=develop
+ENV APP_ENV=dev PS_DEV_MODE=1 XDEBUG_MODE=develop
 
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
-RUN apt-get update; \
-	apt-get install -y --no-install-recommends \
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends \
 		rsync \
 		zip \
 	&& apt-get clean \
@@ -103,13 +99,13 @@ RUN set -eux; \
 		xdebug \
 	;
 
-COPY docker/prestashop/conf.d/prestashop.dev.ini $PHP_INI_DIR/conf.d/zzz-prestashop.dev.ini
+COPY --link docker/prestashop/conf.d/prestashop.dev.ini $PHP_INI_DIR/conf.d/zzz-prestashop.dev.ini
 
 # Prod prestashop image
 FROM prestashop_base AS prestashop_prod
 
-ENV PS_DEV_MODE=0 SYMFONY_DEBUG=0 SYMFONY_ENV=prod
+ENV APP_ENV=prod PS_DEV_MODE=0
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-COPY docker/prestashop/conf.d/prestashop.prod.ini $PHP_INI_DIR/conf.d/zzz-prestashop.prod.ini
+COPY --link docker/prestashop/conf.d/prestashop.prod.ini $PHP_INI_DIR/conf.d/zzz-prestashop.prod.ini

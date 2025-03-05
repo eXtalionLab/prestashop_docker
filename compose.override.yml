@@ -1,0 +1,78 @@
+# Development environment override
+services:
+  prestashop:
+    build:
+      context: .
+      target: prestashop_dev
+    depends_on:
+      - mailer
+    volumes:
+      - ./docker/prestashop/conf.d/prestashop.dev.ini:/usr/local/etc/php/conf.d/zzz-prestashop.dev.ini:ro
+      - ./docker/prestashop/php-fpm.d/prestashop.conf:/usr/local/etc/php-fpm.d/zzz-prestashop.conf:ro
+    environment:
+      PS_MAIL_DOMAIN: ${PS_MAIL_DOMAIN:-localhost}
+      PS_MAIL_SMTP_ENCRYPTION: ${PS_MAIL_SMTP_ENCRYPTION:-off} # off, ssl, tls
+      PS_MAIL_SMTP_PORT: ${PS_MAIL_SMTP_PORT:-1025}
+      PS_MAIL_METHOD: ${PS_MAIL_METHOD:-2} # 1: sendmail, 2: SMTP, 3: off
+      PS_MAIL_PASSWD: ${PS_MAIL_PASSWD:-}
+      PS_MAIL_SERVER: ${PS_MAIL_SERVER:-mailer}
+      PS_MAIL_USER: ${PS_MAIL_USER:-}
+      # See https://xdebug.org/docs/all_settings#mode
+      XDEBUG_MODE: ${XDEBUG_MODE:-develop}
+      XDEBUG_CONFIG:
+        cli_color=1
+        client_host=${XDEBUG_HOST:-host.docker.internal}
+        client_port=${XDEBUG_PORT:-9003}
+        log=/var/www/html/var/logs/xdebug.log
+        log_level=${XDEBUG_LOG_LEVEL:-7}
+        idekey=${XDEBUG_IDEKEY:-xdebug}
+      XDEBUG_SESSION: ${XDEBUG_IDEKEY:-xdebug}
+    extra_hosts:
+      # Ensure that host.docker.internal is correctly defined on Linux
+      - host.docker.internal:host-gateway
+    tty: true
+
+  nginx:
+    volumes:
+      - ./docker/nginx/entrypoint.sh:/usr/local/bin/entrypoint:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf.template:ro
+
+  database:
+    volumes:
+      - ./docker/database/prestashop.cnf:/etc/mysql/conf.d/zzz-prestashop.cnf:ro
+
+  daemon:
+    build:
+      context: .
+      target: prestashop_dev
+    ports:
+      - target: 9001
+        published: ${SUPERVISOR_PORT:-9001}
+        protocol: tcp
+    depends_on:
+      - mailer
+    volumes:
+      - ./docker/prestashop/conf.d/prestashop.dev.ini:/usr/local/etc/php/conf.d/zzz-prestashop.dev.ini:ro
+      - ./docker/prestashop/cron.sh:/cron.sh
+      - ./docker/prestashop/daemon-entrypoint.sh:/usr/local/bin/daemon-entrypoint:ro
+      - ./docker/prestashop/daemon-supervisor.conf:/etc/supervisor/conf.d/daemon.conf:ro
+
+  redis:
+    volumes:
+      - ./docker/redis/start.sh:/usr/bin/start.sh:ro
+
+  mailer:
+    image: axllent/mailpit
+    restart: unless-stopped
+    ports:
+      - target: 8025
+        published: ${MAILER_PORT:-8025}
+        protocol: tcp
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+  node:
+    image: node:${NODE_VERSION:-14}-alpine
+    volumes:
+      - ./prestashop:/var/www/html
