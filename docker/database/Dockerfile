@@ -4,7 +4,7 @@
 
 
 # https://docs.docker.com/engine/reference/builder/#understand-how-arg-and-from-interact
-ARG MARIADB_VERSION=11.4
+ARG MARIADB_VERSION=11.8
 
 
 # "mariadb" stage
