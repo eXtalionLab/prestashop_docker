@@ -18,7 +18,7 @@ services:
       PS_MAIL_SERVER: ${PS_MAIL_SERVER:-mailer}
       PS_MAIL_USER: ${PS_MAIL_USER:-}
       # See https://xdebug.org/docs/all_settings#mode
-      XDEBUG_MODE: ${XDEBUG_MODE:-develop}
+      XDEBUG_MODE: ${XDEBUG_MODE:-debug}
       XDEBUG_CONFIG:
         cli_color=1
         client_host=${XDEBUG_HOST:-host.docker.internal}

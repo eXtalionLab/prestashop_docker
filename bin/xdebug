@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+envFile=".env"
+
+if [[ ! -f $envFile ]]; then
+    echo ""
+    echo "${envFile} file not found."
+    echo ""
+    echo "Run: cp ${envFile}.dist ${envFile}"
+    echo ""
+
+    exit 1
+fi
+
+source $envFile
+
+action="${1}"
+mode="${2:-debug}"
+allowModes=("coverage" "debug" "develop" "gcstats" "off" "profile" "trace")
+
+if [[ ! " ${allowModes[*]} " =~ [[:space:]]${mode}[[:space:]] ]]; then
+    echo ""
+    echo "Invalid mode: ${mode}"
+    echo ""
+    echo "Available modes: ${allowModes[*]}"
+    echo ""
+
+    exit 1
+fi
+
+if [[ "${action}" == "on" ]] && [[ ! "${XDEBUG_MODE}" =~ "${mode}" ]]; then
+    XDEBUG_MODE="${XDEBUG_MODE},${mode}"
+
+    sed -i "s/XDEBUG_MODE=.*/XDEBUG_MODE=${XDEBUG_MODE}/" $envFile
+
+    docker compose up -d
+elif [[ "${action}" == "off" ]] && [[ "${XDEBUG_MODE}" =~ "${mode}" ]]; then
+    XDEBUG_MODE=$(echo "${XDEBUG_MODE}" | sed "s/${mode}//")
+    XDEBUG_MODE=$(echo "${XDEBUG_MODE}" | sed "s/,,/,/")
+    XDEBUG_MODE=$(echo "${XDEBUG_MODE}" | sed "s/,$//")
+
+    sed -i "s/XDEBUG_MODE=.*/XDEBUG_MODE=${XDEBUG_MODE}/" $envFile
+
+    docker compose up -d
+fi
+
+echo ""
+echo "Xdebug mode: ${XDEBUG_MODE}"
+echo ""

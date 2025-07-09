@@ -23,7 +23,6 @@ Other environments are described
 If you want to debug a shop with [xdebug](https://xdebug.org/):
 
 - be sure you're running **dev** environment (and images),
-- add/setup `debug` to `XDEBUG_MODE`,
-- reload docker with `docker compose up -d`.
+- run `bin/xdebug` to toggle xdebug mode.
 
 Now you're ready to remote debugging.
