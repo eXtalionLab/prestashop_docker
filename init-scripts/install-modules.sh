@@ -2,7 +2,7 @@
 
 echo "Install modules..."
 
-autoupgrade_version=${AUTOUPGRADE_VERSION:-v6.3.0}
+autoupgrade_version=${AUTOUPGRADE_VERSION:-v7.2.0}
 fop_console_version=${FOP_CONSOLE_VERSION:-1.5.0}
 
 mkdir -p /tmp/modules;
